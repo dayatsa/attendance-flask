@@ -1,0 +1,6 @@
+FLASK_APP=main.py
+DB_HOST=localhost
+DB_DATABASE=attendancedb
+DB_USERNAME=dayatsa
+DB_PASSWORD=password
+JWT_SECRET=sq7f4d5a9g1ts4r5vf8g2hj6s3er44r
