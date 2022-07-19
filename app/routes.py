@@ -1,5 +1,5 @@
 from app import app
-from app.handler import ActivityController, UserHandler, AuthenticationHandler
+from app.handler import ActivityHandler, UserHandler, AuthenticationHandler, AttendanceHandler
 from flask import request
 
 
@@ -25,19 +25,27 @@ def authentications():
         return AuthenticationHandler.postAuthenticationHandler()
 
 
+@app.route('/attendance', methods=['GET','POST'])
+def attendance():
+    if request.method == 'GET':
+        return AttendanceHandler.getAttendanceHandler()
+    else:
+        return AttendanceHandler.postAttendanceHandler()
+
+
 @app.route('/activity', methods=['POST', 'GET'])
 def activity():
     if request.method == 'GET':
-        return ActivityController.getActivityHandler()
+        return ActivityHandler.getActivityHandler()
     else:
-        return ActivityController.postActivityHandler()
+        return ActivityHandler.postActivityHandler()
 
 
 @app.route('/activity/<id>', methods=['PUT', 'GET', 'DELETE'])
 def activityDetail(id):
     if request.method == 'GET':
-        return ActivityController.getActivityByIdHandler(id)
+        return ActivityHandler.getActivityByIdHandler(id)
     elif request.method == 'PUT':
-        return ActivityController.putActivityHandler(id)
+        return ActivityHandler.putActivityHandler(id)
     elif request.method == 'DELETE':
-        return ActivityController.deleteActivityHandler(id)
+        return ActivityHandler.deleteActivityHandler(id)

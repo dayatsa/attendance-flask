@@ -5,6 +5,8 @@ from app.validator.UserSchema import UserSchema
 from flask import request, jsonify
 from flask_jwt_extended import *
 from datetime import datetime
+from marshmallow import ValidationError
+from sqlalchemy.exc import IntegrityError
 
 
 def postUserHandler():
@@ -26,7 +28,12 @@ def postUserHandler():
         return response.ok('success', 'Successfully add user!', data=singleTransform(user), code=201)
 
     except Exception as e:
-        return response.badRequest('fail', str(type(e)))
+        if isinstance(e, ValidationError):
+            return response.badRequest('fail', str(e))
+        elif isinstance(e, IntegrityError):
+            return response.badRequest('fail', e.args)
+        else:
+            return response.badRequest('fail', str(type(e)))
 
 
 @jwt_required()

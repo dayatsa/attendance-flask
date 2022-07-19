@@ -3,9 +3,11 @@ from app.model.activity import Activities as Activities
 from app.validator.ActivitySchema import ActivitySchema
 from flask import request
 from app import response, db
-from app.handler import UserHandler
+from app.handler import UserHandler, AttendanceHandler
 from flask_jwt_extended import *
 from datetime import datetime, date, timedelta
+from marshmallow import ValidationError
+from sqlalchemy.exc import IntegrityError
 
 
 @jwt_required()
@@ -13,6 +15,7 @@ def getActivityHandler():
     try:
         user = get_jwt_identity()
         id = user['id']
+        AttendanceHandler.isCheckin(id)
 
         if request.json is not None:
             req = request.json['date']
@@ -27,12 +30,18 @@ def getActivityHandler():
         return response.ok("success", data=data)
     except Exception as e:
         print(e)
+        if isinstance(e, AuthenticationError):
+            return response.badRequest('fail', str(e))
+        else:
+            return response.badRequest('fail', str(type(e)))
 
 
 @jwt_required()
 def postActivityHandler():
     try:
         user = get_jwt_identity()
+
+        AttendanceHandler.isCheckin(user['id'])
         schema = ActivitySchema()
 
         request_data = request.json
@@ -50,13 +59,20 @@ def postActivityHandler():
 
     except Exception as e:
         print(e)
-        return response.badRequest('fail', str(type(e)))
+        if isinstance(e, (AuthenticationError, ValidationError)):
+            return response.badRequest('fail', str(e))
+        elif isinstance(e, IntegrityError):
+            return response.badRequest('fail', e.args)
+        else:
+            return response.badRequest('fail', str(type(e)))
 
 
 @jwt_required()
 def putActivityHandler(id):
     try:
         user_id = get_jwt_identity()['id']
+
+        AttendanceHandler.isCheckin(user_id)
         schema = ActivitySchema()
         verifyActivityOwner(id, user_id)
 
@@ -78,12 +94,18 @@ def putActivityHandler(id):
 
     except Exception as e:
         print(e)
-        return response.badRequest('fail', str(type(e)), code=401)
+        if isinstance(e, (AuthenticationError, ValueError, ValidationError)):
+            return response.badRequest('fail', str(e))
+        else:
+            return response.badRequest('fail', str(type(e)), code=401)
 
 
 @jwt_required()
 def getActivityByIdHandler(id):
     try:
+        user_id = get_jwt_identity()['id']
+        AttendanceHandler.isCheckin(user_id)
+
         activity = Activities.query.filter_by(id=id).first()
         if not activity:
             return response.badRequest('fail', 'Activity not found')
@@ -92,12 +114,18 @@ def getActivityByIdHandler(id):
         return response.ok(status="success", data=data)
     except Exception as e:
         print(e)
+        if isinstance(e, AuthenticationError):
+            return response.badRequest('fail', str(e))
+        else:
+            return response.badRequest('fail', str(type(e)))
 
 
 @jwt_required()
 def deleteActivityHandler(id):
     try:
         user_id = get_jwt_identity()['id']
+
+        AttendanceHandler.isCheckin(user_id)
         verifyActivityOwner(id, user_id)
         activity = Activities.query.filter_by(id=id).first()
 
@@ -108,11 +136,11 @@ def deleteActivityHandler(id):
     except Exception as e:
         print(e)
         return response.badRequest('fail', str(e), code=401)
+        
 
 
 def verifyActivityOwner(activity_id, owner_id):
     activity = Activities.query.filter_by(id=activity_id).first()
-    # print(activity.user_id, activity_id, owner_id)
     if not activity:
         raise ValueError('Activity not found')
     if activity.user_id != owner_id:

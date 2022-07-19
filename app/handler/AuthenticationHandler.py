@@ -7,6 +7,8 @@ from app import response, db, jwt
 from app.validator.AuthenticationSchema import AuthenticationSchema
 from flask import request
 from flask_jwt_extended import *
+from marshmallow import ValidationError
+from sqlalchemy.exc import IntegrityError
 
 
 def postAuthenticationHandler():
@@ -39,7 +41,12 @@ def postAuthenticationHandler():
             code=201
         )
     except Exception as e:
-        return response.badRequest('fail', str(type(e)))
+        if isinstance(e, ValidationError):
+            return response.badRequest('fail', str(e))
+        elif isinstance(e, IntegrityError):
+            return response.badRequest('fail', e.args)
+        else:
+            return response.badRequest('fail', str(type(e)))
 
 
 @jwt_required(refresh=True)
