@@ -7,22 +7,6 @@ from flask_jwt_extended import *
 from datetime import datetime
 
 
-# def index():
-#     try:
-#         users = Users.query.all()
-#         data = transform(users)
-#         return response.ok(data, "")
-#     except Exception as e:
-#         print(e)
-
-
-# def transform(users):
-#     array = []
-#     for i in users:
-#         array.append(singleTransform(i))
-#     return array
-
-
 def postUserHandler():
     try:
         schema = UserSchema()

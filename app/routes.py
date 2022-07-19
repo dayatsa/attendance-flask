@@ -41,7 +41,3 @@ def activityDetail(id):
         return ActivityController.putActivityHandler(id)
     elif request.method == 'DELETE':
         return ActivityController.deleteActivityHandler(id)
-
-
-
-        

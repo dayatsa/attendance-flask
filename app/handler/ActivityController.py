@@ -1,12 +1,11 @@
 from multiprocessing import AuthenticationError
-from turtle import update
 from app.model.activity import Activities as Activities
 from app.validator.ActivitySchema import ActivitySchema
-from flask import request, jsonify
+from flask import request
 from app import response, db
 from app.handler import UserHandler
 from flask_jwt_extended import *
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 
 @jwt_required()
@@ -14,7 +13,19 @@ def getActivityHandler():
     try:
         user = get_jwt_identity()
         id = user['id']
-        activity = Activities.query.filter_by(user_id=id).all()
+
+        if request.json is not None:
+            req = request.json['date']
+            req = [int(i) for i in req.split('-')]
+            print(req)
+            date_act = date(req[2], req[1], req[0])
+            print(date_act)
+            # activity = Activities.query.filter_by(updated_at=date)
+            activity = Activities.query.filter(Activities.user_id==id, Activities.updated_at > date_act, Activities.updated_at < date_act + timedelta(days=1)).all()
+
+        else:
+            activity = Activities.query.filter_by(user_id=id).all()
+        
         data = transform(activity)
         return response.ok("success", data=data)
     except Exception as e:
