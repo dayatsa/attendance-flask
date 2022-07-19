@@ -1,50 +1,50 @@
 from app import app
-from app.controller import UserController, ActivityController
+from app.handler import ActivityController, UserHandler, AuthenticationHandler
 from flask import request
 
 
-@app.route('/users', methods=['POST', 'GET'])
+@app.route('/users', methods=['POST'])
 def users():
-    if request.method == 'GET':
-        return UserController.index()
-    else:
-        return UserController.store()
+    return UserHandler.postUserHandler()
 
 
 @app.route('/users/<id>', methods=['PUT', 'GET', 'DELETE'])
 def usersDetail(id):
     if request.method == 'GET':
-        return UserController.show(id)
+        return UserHandler.show(id)
     elif request.method == 'PUT':
-        return UserController.update(id)
+        return UserHandler.update(id)
     elif request.method == 'DELETE':
-        return UserController.delete(id)
+        return UserHandler.delete(id)
 
 
-@app.route('/login', methods=['POST'])
-def login():
-    return UserController.login()
+@app.route('/authentications', methods=['POST', 'PUT', 'DELETE'])
+def authentications():
+    if request.method == 'PUT':
+        return AuthenticationHandler.putAuthenticationHandler()
+    elif request.method == 'DELETE':
+        return AuthenticationHandler.deleteAuthenticationHandler()
+    else:
+        return AuthenticationHandler.postAuthenticationHandler()
 
 
 @app.route('/activity', methods=['POST', 'GET'])
 def activity():
     if request.method == 'GET':
-        return ActivityController.index()
+        return ActivityController.getActivityHandler()
     else:
-        return ActivityController.store()
+        return ActivityController.postActivityHandler()
 
 
 @app.route('/activity/<id>', methods=['PUT', 'GET', 'DELETE'])
 def activityDetail(id):
     if request.method == 'GET':
-        return ActivityController.show(id)
+        return ActivityController.getActivityByIdHandler(id)
     elif request.method == 'PUT':
-        return ActivityController.update(id)
+        return ActivityController.putActivityHandler(id)
     elif request.method == 'DELETE':
-        return ActivityController.delete(id)
+        return ActivityController.deleteActivityHandler(id)
 
 
-@app.route('/refresh', methods=['POST'])
-def refresh():
-    return UserController.refresh()
+
         
