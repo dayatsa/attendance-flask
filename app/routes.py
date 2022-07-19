@@ -3,19 +3,16 @@ from app.handler import ActivityController, UserHandler, AuthenticationHandler
 from flask import request
 
 
-@app.route('/users', methods=['POST'])
+@app.route('/users', methods=['POST', 'GET', 'PUT', 'DELETE'])
 def users():
-    return UserHandler.postUserHandler()
-
-
-@app.route('/users/<id>', methods=['PUT', 'GET', 'DELETE'])
-def usersDetail(id):
     if request.method == 'GET':
-        return UserHandler.show(id)
+        return UserHandler.getUserHandler()
     elif request.method == 'PUT':
-        return UserHandler.update(id)
+        return UserHandler.putUserHandler()
     elif request.method == 'DELETE':
-        return UserHandler.delete(id)
+        return UserHandler.deleteUserHandler()
+    else:
+        return UserHandler.postUserHandler()
 
 
 @app.route('/authentications', methods=['POST', 'PUT', 'DELETE'])

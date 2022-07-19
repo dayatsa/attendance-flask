@@ -1,8 +1,10 @@
+from app.model.token_blocklist import TokenBlocklist
 from app.model.user import Users
 from app import response, db
 from app.validator.UserSchema import UserSchema
 from flask import request, jsonify
 from flask_jwt_extended import *
+from datetime import datetime
 
 
 # def index():
@@ -19,18 +21,6 @@ from flask_jwt_extended import *
 #     for i in users:
 #         array.append(singleTransform(i))
 #     return array
-
-
-# def show(id):
-#     try:
-#         users = Users.query.filter_by(id=id).first()
-#         if not users:
-#             return response.badRequest([], 'Empty....')
-
-#         data = singleTransform(users)
-#         return response.ok(data, "")
-#     except Exception as e:
-#         print(e)
 
 
 def postUserHandler():
@@ -55,40 +45,68 @@ def postUserHandler():
         return response.badRequest('fail', str(type(e)))
 
 
+@jwt_required()
+def getUserHandler():
+    try:
+        user_id = get_jwt_identity()['id']
+        user = Users.query.filter_by(id=user_id).first()
+        if not user:
+            return response.badRequest('fail', 'User Not Found')
+
+        data = singleTransform(user)
+        return response.ok(status="success", data=data)
+    except Exception as e:
+        print(e)
+        return response.badRequest('fail', str(type(e)))
+
 
 @jwt_required()
-def putUserByIdHandler(id):
+def putUserHandler():
     try:
-        name = request.json['name']
-        email = request.json['email']
-        password = request.json['password']
+        user_id = get_jwt_identity()['id']
+        schema = UserSchema()
 
-        user = Users.query.filter_by(id=id).first()
+        request_data = request.json
+        result = schema.load(request_data)
+
+        name = result['name']
+        email = result['email']
+        password = result['password']
+
+        user = Users.query.filter_by(id=user_id).first()
         user.email = email
         user.name = name
         user.setPassword(password)
 
         db.session.commit()
 
-        return response.ok('', 'Successfully update user!')
+        return response.ok('success', 'Successfully update user!')
 
     except Exception as e:
         print(e)
+        return response.badRequest('fail', str(type(e)))
 
 
 @jwt_required()
-def delete(id):
+def deleteUserHandler():
     try:
-        user = Users.query.filter_by(id=id).first()
+        jti = get_jwt()["jti"]
+        now = datetime.utcnow()
+        db.session.add(TokenBlocklist(jti=jti, created_at=now))
+        db.session.commit()
+
+        user_id = get_jwt_identity()['id']
+        user = Users.query.filter_by(id=user_id).first()
         if not user:
-            return response.badRequest([], 'Empty....')
+            return response.badRequest('fail', 'User not found')
 
         db.session.delete(user)
         db.session.commit()
 
-        return response.ok('', 'Successfully delete data!')
+        return response.ok('success', 'Successfully delete data!')
     except Exception as e:
         print(e)
+        return response.badRequest('fail', str(type(e)))
 
 
 def singleTransform(user, withActivity=False):
