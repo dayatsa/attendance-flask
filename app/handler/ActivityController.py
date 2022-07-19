@@ -17,10 +17,7 @@ def getActivityHandler():
         if request.json is not None:
             req = request.json['date']
             req = [int(i) for i in req.split('-')]
-            print(req)
             date_act = date(req[2], req[1], req[0])
-            print(date_act)
-            # activity = Activities.query.filter_by(updated_at=date)
             activity = Activities.query.filter(Activities.user_id==id, Activities.updated_at > date_act, Activities.updated_at < date_act + timedelta(days=1)).all()
 
         else:
