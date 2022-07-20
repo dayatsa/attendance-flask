@@ -13,8 +13,5 @@ marshmallow==3.14.1
 PyJWT==2.4.0
 PyMySQL==1.0.2
 python-dotenv==0.20.0
-python_qt_binding==0.4.4
-resource_retriever==1.12.7
 SQLAlchemy==1.4.39 
-urdfdom-py==0.4.6
 Werkzeug==2.0.3
