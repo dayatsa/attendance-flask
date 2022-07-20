@@ -21,6 +21,7 @@ def postUserHandler():
         email = result['email']
         password = result['password']
 
+        print("user")
         user = Users(name=name, email=email)
         user.setPassword(password)
         db.session.add(user)
