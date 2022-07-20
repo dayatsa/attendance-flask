@@ -29,7 +29,7 @@ def postUserHandler():
         return response.ok('success', 'Successfully add user!', data=singleTransform(user), code=201)
 
     except Exception as e:
-        if isinstance(e, ValidationError, OperationalError):
+        if isinstance(e, (ValidationError, OperationalError)):
             return response.badRequest('fail', str(e))
         elif isinstance(e, IntegrityError):
             return response.badRequest('fail', e.args)
