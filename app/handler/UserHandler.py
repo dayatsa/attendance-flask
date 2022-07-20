@@ -1,3 +1,4 @@
+from sqlalchemy.exc import OperationalError
 from app.model.token_blocklist import TokenBlocklist
 from app.model.user import Users
 from app import response, db
@@ -28,7 +29,7 @@ def postUserHandler():
         return response.ok('success', 'Successfully add user!', data=singleTransform(user), code=201)
 
     except Exception as e:
-        if isinstance(e, ValidationError):
+        if isinstance(e, ValidationError, OperationalError):
             return response.badRequest('fail', str(e))
         elif isinstance(e, IntegrityError):
             return response.badRequest('fail', e.args)
