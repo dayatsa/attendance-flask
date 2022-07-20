@@ -1,6 +1,6 @@
 FLASK_APP=main.py
-DB_HOST=localhost
-DB_DATABASE=attendancedb
-DB_USERNAME=dayatsa
-DB_PASSWORD=password
+DB_HOST=sql6.freesqldatabase.com
+DB_DATABASE=sql6507569
+DB_USERNAME=sql6507569
+DB_PASSWORD=TKkE6aUexE
 JWT_SECRET=sq7f4d5a9g1ts4r5vf8g2hj6s3er44r
